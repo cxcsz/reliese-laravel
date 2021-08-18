@@ -355,7 +355,12 @@ class Factory
         $annotations = '';
 
         foreach ($model->getProperties() as $name => $hint) {
-            $annotations .= $this->class->annotation('property', "$hint \$$name");
+            if ($model->usesHints()) {
+                $comment = @$model->getHints()[$name];
+                $annotations .= $this->class->annotation('property', "$hint \$$name {$comment}");
+            } else {
+                $annotations .= $this->class->annotation('property', "$hint \$$name");
+            }
         }
 
         if ($model->hasRelations()) {
