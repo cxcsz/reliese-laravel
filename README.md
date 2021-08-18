@@ -87,3 +87,23 @@ to decide whether this approach gives value to your project :-)
 #### Support
 
 For the time being, this package supports MySQL, PostgreSQL and SQLite databases. Support for other databases are encouraged to be added through pull requests.
+
+## 拉取分支描述
+拉取该分支是为了在 phpdoc 中添加字段的描述,没有经过测试仅供自己使用并记录，以便下次修改。   
+修改的地方：
++ 配置文件添加 hints 参数（该参数在配置文件中没有，但是阅读源码发现已在使用，设置为 true 会在模型中添加 hints 属性，用来记录字段与描述的对应关系，我将使用这个字段来判断是否添加描述）
++ src\Coders\Model\Factory.php 文件 properties 方法中修改以下内容
+```php
+        foreach ($model->getProperties() as $name => $hint) {
+            $annotations .= $this->class->annotation('property', "$hint \$$name");
+        }
+// 上方代码修改为下方的代码
+        foreach ($model->getProperties() as $name => $hint) {
+            if ($model->usesHints()) {
+                $comment = @$model->getHints()[$name];
+                $annotations .= $this->class->annotation('property', "$hint \$$name {$comment}");
+            } else {
+                $annotations .= $this->class->annotation('property', "$hint \$$name");
+            }
+        }
+```
